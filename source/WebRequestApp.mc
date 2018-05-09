@@ -8,6 +8,7 @@ using Toybox.Application as App;
 
 class WebRequestApp extends App.AppBase {
     hidden var mView;
+    hidden var mDelegate;
 
     function initialize() {
         App.AppBase.initialize();
@@ -24,6 +25,11 @@ class WebRequestApp extends App.AppBase {
     // Return the initial view of your application here
     function getInitialView() {
         mView = new WebRequestView();
-        return [mView, new WebRequestDelegate(mView.method(:onReceive))];
+        mDelegate =  new WebRequestDelegate(mView.method(:onReceive));
+        return [mView, mDelegate];
+    }
+
+    function makeRequest(url) {
+        return mDelegate.makeRequest(url);
     }
 }

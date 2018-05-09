@@ -10,6 +10,8 @@ using Toybox.Graphics;
 class WebRequestView extends Ui.View {
     hidden var mMessage = "Press menu button";
     hidden var mModel;
+var linelen=22;
+var maxlines=6;
 
     function initialize() {
         Ui.View.initialize();
@@ -48,12 +50,52 @@ class WebRequestView extends Ui.View {
         else if (args instanceof Dictionary) {
 	    var content= args.get("content");
 	    if (content!=null) {
-	       mMessage=content;
+	       if(content.find("\n")!=null) {
+		   mMessage=content;
+		} else {
+		   mMessage=splitLines(content);
+		}
 	    }
 	    else {
 	    	 mMessage="Invalid json";
 		 }
         }
         Ui.requestUpdate();
+    }
+
+    function splitLines(str){
+        if(str.length()<linelen) {
+           return str;
+        }
+        var tokens = [];
+        var found = str.find(" ");
+        while (found != null) {
+            var token = str.substring(0, found);
+            tokens.add(token);
+            str = str.substring(found + 1, str.length());
+            found = str.find(" ");
+        }
+
+        tokens.add(str);
+
+        var newstr="";
+        var lines=1;
+        var line=0;
+        for(var i=0;i<tokens.size();i++){
+           line+=tokens[i].length();
+           if (line>linelen){
+                if(lines>=maxlines) {
+                   newstr+="$";
+                   break;
+                }
+                newstr+="\n";
+                line=tokens[i].length();
+                lines++;
+           }
+           newstr+=tokens[i];
+           newstr+=" ";
+           line++;
+        }
+        return newstr;
     }
 }

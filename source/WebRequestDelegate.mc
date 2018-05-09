@@ -9,26 +9,48 @@ using Toybox.WatchUi as Ui;
 
 class WebRequestDelegate extends Ui.BehaviorDelegate {
     var notify;
+    var menudata;
         var index=0;
-	var urlroot= "https://example.com/garmin.php?page=";
+	var baseurl= "https://example.com/webrequests.json";
 
     // Handle menu button press
     function onMenu() {
-        makeRequest();
+        loadMenu();
         return true;
     }
 
     function onSelect() {
-        makeRequest();
+        loadMenu();
         return true;
     }
     
-
-    function makeRequest() {
+    function loadMenu() {
+        if (menudata!=null){
+	   onReceiveMenu(200,menudata);
+	} else {
         if(System.getDeviceSettings().phoneConnected){
         notify.invoke("Executing\nRequest");
         Comm.makeWebRequest(
-             urlroot+index,
+             baseurl,
+            {
+            },
+            {
+                "Content-Type" => Comm.REQUEST_CONTENT_TYPE_JSON
+            },
+            method(:onReceiveMenu)
+        );
+
+	}  else {
+	   notify.invoke("Phone\ndisconnected");
+	}
+	}
+    }
+
+    function makeRequest(url) {
+        if(System.getDeviceSettings().phoneConnected){
+        notify.invoke("Loading");
+        Comm.makeWebRequest(
+             url,
             {
             },
             {
@@ -36,7 +58,6 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
             },
             method(:onReceive)
         );
-		index++;
 
 	}  else {
 	   notify.invoke("Phone\ndisconnected");
@@ -58,4 +79,29 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
             notify.invoke("Failed to load\nError: " + responseCode.toString());
         }
     }
+    function onReceiveMenu(responseCode, data) {
+        if (responseCode == 200) {
+	    if (data instanceof Dictionary){
+	        menudata=data;
+		var menu = new WatchUi.Menu();
+		var delegate;
+		menu.setTitle("Pages");
+		var urls=data.get("urls");
+		for(var i=0;i<urls.size();i++){
+		    if(urls[i] instanceof Dictionary){
+		    	menu.addItem(urls[i].get("name"), urls[i].get("url"));
+		   }
+		}
+		delegate = new WebRequestMenuDelegate(); // a WatchUi.MenuInputDelegate
+		WatchUi.pushView(menu, delegate, SLIDE_IMMEDIATE);
+		return true;
+	    } else {
+		notify.invoke("Bad response");
+	    }
+
+        } else {
+            notify.invoke("Failed to load\nError: " + responseCode.toString());
+        }
+    }
 }
+
