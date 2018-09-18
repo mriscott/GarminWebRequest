@@ -10,6 +10,7 @@ using Toybox.WatchUi as Ui;
 class WebRequestDelegate extends Ui.BehaviorDelegate {
     var notify;
     var menudata;
+    var menuchoice;
         var index=0;
 	var baseurl= "https://example.com/webrequests.json";
 
@@ -26,10 +27,11 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     
     function loadMenu() {
         if (menudata!=null){
-	   onReceiveMenu(200,menudata);
+	   //onReceiveMenu(200,menudata);
+	   Application.getApp().repeatRequest();
 	} else {
         if(System.getDeviceSettings().phoneConnected){
-        notify.invoke("Executing\nRequest");
+        notify.invoke("Loading Menu");
         Comm.makeWebRequest(
              baseurl,
             {

@@ -9,6 +9,7 @@ using Toybox.Application as App;
 class WebRequestApp extends App.AppBase {
     hidden var mView;
     hidden var mDelegate;
+    hidden var mUrl;
 
     function initialize() {
         App.AppBase.initialize();
@@ -29,7 +30,15 @@ class WebRequestApp extends App.AppBase {
         return [mView, mDelegate];
     }
 
+
     function makeRequest(url) {
+        mUrl=url;
         return mDelegate.makeRequest(url);
     }
+
+    function repeatRequest() {        
+        return mDelegate.makeRequest(mUrl);
+    }
+
+
 }
