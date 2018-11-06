@@ -12,7 +12,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     var menudata;
     var menuchoice;
         var index=0;
-	var baseurl= "https://example.com/webrequests.json";
+	var baseurl= Ui.loadResource(Rez.Strings.MenuURL);
 
     // Handle menu button press
     function onMenu() {
@@ -98,7 +98,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		WatchUi.pushView(menu, delegate, SLIDE_IMMEDIATE);
 		return true;
 	    } else {
-		notify.invoke("Bad response");
+		notify.invoke("Bad response:"+responseCode);
 	    }
 
         } else {
