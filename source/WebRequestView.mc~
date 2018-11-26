@@ -20,18 +20,10 @@ var maxlines=6;
     // Load your resources here
     function onLayout(dc) {
 	var info = ActivityMonitor.getInfo();
-	/*
         mMessage = "Batt : "+System.getSystemStats().battery.format("%d")+"%\n"+
 	 "Conn : "+System.getDeviceSettings().phoneConnected+"\n"+
 	 "Step : "+info.steps+"/"+info.stepGoal+"\n"+
 	 "Cals : "+info.calories;
-	 */
-	 var note = Application.getApp().getNote();
-	 if(note!=null){
-	 mMessage=note;
-	 }
-    
-
 	
     }
 
