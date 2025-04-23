@@ -53,6 +53,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
         mUrl=url;
         if(System.getDeviceSettings().phoneConnected){
         notify.invoke("Loading");
+	var callback=method(:onReceive);
         Comm.makeWebRequest(
              url,
             {
@@ -60,7 +61,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
             {
                 "Content-Type" => Comm.REQUEST_CONTENT_TYPE_JSON
             },
-            method(:onReceive)
+            callback
         );
 
 	}  else {
@@ -76,14 +77,14 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     }
 
     // Receive the data from the web request
-    function onReceive(responseCode, data) {
+    function onReceive(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
         if (responseCode == 200) {
             notify.invoke(data);
         } else {
             notify.invoke("Failed to load\nError: " + responseCode.toString());
         }
     }
-    function onReceiveMenu(responseCode, data) {
+    function onReceiveMenu(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
         if (responseCode == 200) {
 	    if (data instanceof Dictionary){
 	        menudata=data;
@@ -98,16 +99,17 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		       notify.invoke(note);
 		}
 		var urls=data.get("urls");
+		if(urls instanceof Array){
 		for(var i=0;i<urls.size();i++){
 		    if(urls[i] instanceof Dictionary){
 		    	menu.addItem(urls[i].get("name"), urls[i].get("url"));
 		   }
 		}
+		}
 		delegate = new WebRequestMenuDelegate(); // a WatchUi.MenuInputDelegate
 		WatchUi.pushView(menu, delegate, SLIDE_IMMEDIATE);
 		Attention.vibrate([new Attention.VibeProfile(100,500)]);
 
-		return true;
 	    } else {
 		notify.invoke("Bad response:"+responseCode);
 	    }
@@ -117,4 +119,3 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
         }
     }
 }
-

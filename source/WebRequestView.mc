@@ -58,6 +58,7 @@ var maxlines=6;
         else if (args instanceof Dictionary) {
 	    var content= args.get("content");
 	    if (content!=null) {
+	       content=content.toString();	
 	       if(content.find("\n")!=null) {
 		   mMessage=content;
 		} else {
