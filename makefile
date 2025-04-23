@@ -11,4 +11,4 @@ rerun:
 	$(sdkroot)/bin/monkeydo $(projectroot)/oura.prg fr735xt
 
 clean:
-	rm *.prg
+	rm *.prg*
