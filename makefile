@@ -5,10 +5,11 @@ build :
 
 all: build
 	$(sdkroot)/bin/connectiq
-	$(sdkroot)/bin/monkeydo $(projectroot)/oura.prg fr735xt
+	sleep 5
+	$(sdkroot)/bin/monkeydo $(projectroot)/oura.prg fenix6pro
 
 rerun:	
-	$(sdkroot)/bin/monkeydo $(projectroot)/oura.prg fr735xt
+	$(sdkroot)/bin/monkeydo $(projectroot)/oura.prg fenix6pro
 
 clean:
 	rm *.prg*
