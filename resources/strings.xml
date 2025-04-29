@@ -1,4 +1,4 @@
 <resources>
     <string id="AppName">Oura</string>
-    <string id="MenuURL">https://bzz18o-user.freehosting.host/garmin.json</string>
+    <string id="AuthKey">xxxxxxx</string>
 </resources>

@@ -17,6 +17,8 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     var ascore=0;
     var acal=0;
     var tcal=0;
+    var authkey = Ui.loadResource(Rez.Strings.AuthKey);
+
 
     var mUrl;
         var index=0;
@@ -45,7 +47,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 
 	var options = {                                             // set the options
            :headers => {                                           // set headers
-		"Authorization" => "Bearer  XXXXXXXXXXXX"
+		"Authorization" => "Bearer  "+authkey
 		},
        };
 
