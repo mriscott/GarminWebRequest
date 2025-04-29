@@ -31,21 +31,5 @@ class WebRequestApp extends App.AppBase {
     }
 
 
-    function makeRequest(url) {
-        mUrl=url;
-        return mDelegate.makeRequest(url);
-    }
-
-    function repeatRequest() {        
-        return mDelegate.makeRequest(mUrl);
-    }
-
-    function setNote(note){
-       Application.getApp().setProperty("note",note);
-    }
-    function getNote(){
-       return Application.getApp().getProperty("note");
-    }
-
 
 }

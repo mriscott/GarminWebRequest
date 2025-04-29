@@ -10,8 +10,6 @@ using Toybox.Graphics;
 class WebRequestView extends Ui.View {
     hidden var mMessage = "Press menu button";
     hidden var mModel;
-var linelen=22;
-var maxlines=6;
 
     function initialize() {
         Ui.View.initialize();
@@ -19,20 +17,6 @@ var maxlines=6;
 
     // Load your resources here
     function onLayout(dc) {
-	var info = ActivityMonitor.getInfo();
-	/*
-        mMessage = "Batt : "+System.getSystemStats().battery.format("%d")+"%\n"+
-	 "Conn : "+System.getDeviceSettings().phoneConnected+"\n"+
-	 "Step : "+info.steps+"/"+info.stepGoal+"\n"+
-	 "Cals : "+info.calories;
-	 */
-	 var note = Application.getApp().getNote();
-	 if(note!=null){
-	 mMessage=note;
-	 }
-    
-
-	
     }
 
     // Restore the state of the app and prepare the view to be shown
@@ -59,11 +43,6 @@ var maxlines=6;
 	    var content= args.get("content");
 	    if (content!=null) {
 	       content=content.toString();	
-	       if(content.find("\n")!=null) {
-		   mMessage=content;
-		} else {
-		   mMessage=splitLines(content);
-		}
 	    }
 	    else {
 	    	 mMessage="Invalid json";
@@ -72,39 +51,4 @@ var maxlines=6;
         Ui.requestUpdate();
     }
 
-    function splitLines(str){
-        if(str.length()<linelen) {
-           return str;
-        }
-        var tokens = [];
-        var found = str.find(" ");
-        while (found != null) {
-            var token = str.substring(0, found);
-            tokens.add(token);
-            str = str.substring(found + 1, str.length());
-            found = str.find(" ");
-        }
-
-        tokens.add(str);
-
-        var newstr="";
-        var lines=1;
-        var line=0;
-        for(var i=0;i<tokens.size();i++){
-           line+=tokens[i].length();
-           if (line>linelen){
-                if(lines>=maxlines) {
-                   newstr+="$";
-                   break;
-                }
-                newstr+="\n";
-                line=tokens[i].length();
-                lines++;
-           }
-           newstr+=tokens[i];
-           newstr+=" ";
-           line++;
-        }
-        return newstr;
-    }
 }
