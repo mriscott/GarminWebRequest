@@ -111,9 +111,14 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     function onReceiveSleep(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
         if (responseCode == 200) {
 	    if (data instanceof Dictionary){
-		data=data.get("data")[0];
-		sscore=data.get("score");
-		updatemsg();
+		data=data.get("data");
+		if(data==null || (data as Toybox.Lang.Array).size()==0){
+                  notify.invoke("No data for today");
+		}else{
+			data=data[0];
+			sscore=data.get("score");
+			updatemsg();
+		}
 
 	    } else {
 		notify.invoke("Bad sleep response:\n"+responseCode);
@@ -126,9 +131,14 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     function onReceiveReadiness(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
         if (responseCode == 200) {
 	    if (data instanceof Dictionary){
-		data=data.get("data")[0];
-		rscore=data.get("score");
-		updatemsg();
+		data=data.get("data");
+		if(data==null || (data as Toybox.Lang.Array).size()==0){
+                  notify.invoke("No data for today");
+		}else{
+			data=data[0];
+			rscore=data.get("score");
+			updatemsg();
+		}
 
 	    } else {
 		notify.invoke("Bad readiness response:\n"+responseCode);
@@ -141,11 +151,16 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     function onReceiveActivity(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
         if (responseCode == 200) {
 	    if (data instanceof Dictionary){
-		data=data.get("data")[0];
+		data=data.get("data");
+		if(data==null || (data as Toybox.Lang.Array).size()==0){
+                  notify.invoke("No data for today");
+		}else{
+		data=data[0];
 		ascore=data.get("score");
 		acal=data.get("active_calories");
 		tcal=data.get("target_calories");
 		updatemsg();
+		}
 
 	    } else {
 		notify.invoke("Bad activity response:\n"+responseCode);
