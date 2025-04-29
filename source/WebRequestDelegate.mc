@@ -17,12 +17,10 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     var ascore=0;
     var acal=0;
     var tcal=0;
-    var authkey = Ui.loadResource(Rez.Strings.AuthKey);
+    var authkey = Application.getApp().getProperty("AuthKey");
 
 
-    var mUrl;
-        var index=0;
-	var baseurl= "https://api.ouraring.com/v2/usercollection/";
+    var baseurl= "https://api.ouraring.com/v2/usercollection/";
 
     // Handle menu button press
     function onMenu() {
@@ -51,10 +49,6 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		},
        };
 
-        if (menudata!=null && mUrl!=null){
-	   //onReceiveMenu(200,menudata);
-	   Application.getApp().repeatRequest();
-	} else {
         if(System.getDeviceSettings().phoneConnected){
         notify.invoke("Loading ");
         Comm.makeWebRequest( sleepurl,params , options , method(:onReceiveSleep));
@@ -64,31 +58,8 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 	}  else {
 	   notify.invoke("Phone\ndisconnected");
 	}
-	}
     }
 
-    function makeRequest(url) {
-        mUrl=url;
-        if(System.getDeviceSettings().phoneConnected){
-        notify.invoke("Loading");
-	var callback=method(:onReceive);
-        Comm.makeWebRequest(
-             url,
-            {
-            },
-            {
-                "Content-Type" => Comm.REQUEST_CONTENT_TYPE_JSON
-            },
-            callback
-        );
-
-	}  else {
-	   notify.invoke("Phone\ndisconnected");
-	}
-
-    }
-
-    // Set up the callback to the view
     function initialize(handler) {
         Ui.BehaviorDelegate.initialize();
         notify = handler;
@@ -96,13 +67,6 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     }
 
     // Receive the data from the web request
-    function onReceive(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
-        if (responseCode == 200) {
-            notify.invoke(data);
-        } else {
-            notify.invoke("Failed to load\nError: " + responseCode.toString());
-        }
-    }
     function updatemsg(){
       notify.invoke(
          "Readiness : "+rscore+
