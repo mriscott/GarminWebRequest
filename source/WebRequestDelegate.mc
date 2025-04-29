@@ -17,7 +17,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     var ascore=0;
     var acal=0;
     var tcal=0;
-    var authkey = Application.getApp().getProperty("AuthKey");
+    var authkey = "";
 
 
     var baseurl= "https://api.ouraring.com/v2/usercollection/";
@@ -63,7 +63,18 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     function initialize(handler) {
         Ui.BehaviorDelegate.initialize();
         notify = handler;
+	loadData();
 	onMenu();
+    }
+
+    function loadData(){
+		
+    rscore=Application.getApp().getProperty("ReadinessScore");
+    sscore=Application.getApp().getProperty("SleepScore");
+    ascore=Application.getApp().getProperty("ActivityScore");
+    acal=Application.getApp().getProperty("ActiveCals");
+    tcal=Application.getApp().getProperty("TargetCals");
+    authkey = Application.getApp().getProperty("AuthKey");
     }
 
     // Receive the data from the web request
@@ -84,6 +95,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 			data=data[0];
 			sscore=data.get("score");
 			updatemsg();
+		    Application.getApp().setProperty("SleepScore",sscore);
 		}
 
 	    } else {
@@ -104,6 +116,8 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 			data=data[0];
 			rscore=data.get("score");
 			updatemsg();
+
+		    Application.getApp().setProperty("ReadinessScore",rscore);
 		}
 
 	    } else {
@@ -126,6 +140,9 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		acal=data.get("active_calories");
 		tcal=data.get("target_calories");
 		updatemsg();
+		    Application.getApp().setProperty("ActivityScore",ascore);
+		    Application.getApp().setProperty("ActiveCals",acal);
+		    Application.getApp().setProperty("Cals",tcal);
 		}
 
 	    } else {

@@ -30,6 +30,10 @@ class WebRequestApp extends App.AppBase {
         return [mView, mDelegate];
     }
 
+    function getGlanceView(){
+       return [new WebRequestGlanceView()];
+    }
+
 
 
 }
