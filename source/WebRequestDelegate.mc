@@ -36,8 +36,9 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     function loadMenu() {
 	var today = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
 	var tomorrow = Time.Gregorian.info(Time.now().add( new Time.Duration(3600*24)), Time.FORMAT_SHORT);
-	var start_date=""+today.year+"-0"+today.month+"-"+today.day;
-	var end_date=""+tomorrow.year+"-0"+tomorrow.month+"-"+tomorrow.day;
+	var start_date=""+today.year+"-"+today.month.format("%02d")+"-"+today.day.format("%02d");
+	var end_date=""+tomorrow.year+"-"+tomorrow.month.format("%02d")+"-"+tomorrow.day.format("%02d");
+	System.println(start_date +" - "+end_date);
 	var sleepurl= baseurl+"daily_sleep?start_date="+start_date+"&end_date="+end_date;
 	var acturl= baseurl+"daily_activity?start_date="+start_date+"&end_date="+end_date;
 	var readyurl= baseurl+"daily_readiness?start_date="+start_date+"&end_date="+end_date;
@@ -48,6 +49,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		"Authorization" => "Bearer  "+authkey
 		},
        };
+	System.println(authkey);
 
         if(System.getDeviceSettings().phoneConnected){
         notify.invoke("Loading ");
@@ -142,7 +144,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		updatemsg();
 		    Application.getApp().setProperty("ActivityScore",ascore);
 		    Application.getApp().setProperty("ActiveCals",acal);
-		    Application.getApp().setProperty("Cals",tcal);
+		    Application.getApp().setProperty("TargetCals",tcal);
 		}
 
 	    } else {
