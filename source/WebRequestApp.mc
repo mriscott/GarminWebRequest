@@ -10,9 +10,11 @@ class WebRequestApp extends App.AppBase {
     hidden var mView;
     hidden var mDelegate;
     hidden var mUrl;
+    hidden var data;
 
     function initialize() {
         App.AppBase.initialize();
+	data=new DataHolder();
     }
 
     // onStart() is called on application start up
@@ -26,12 +28,12 @@ class WebRequestApp extends App.AppBase {
     // Return the initial view of your application here
     function getInitialView() {
         mView = new WebRequestView();
-        mDelegate =  new WebRequestDelegate(mView.method(:onReceive));
+        mDelegate =  new WebRequestDelegate(mView.method(:onReceive),data);
         return [mView, mDelegate];
     }
 
     function getGlanceView(){
-       return [new WebRequestGlanceView()];
+       return [new WebRequestGlanceView(data)];
     }
 
 

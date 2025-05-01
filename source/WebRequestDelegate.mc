@@ -10,14 +10,7 @@ using Toybox.Time as Time;
 
 class WebRequestDelegate extends Ui.BehaviorDelegate {
     var notify;
-    var menudata;
-    var menuchoice;
-    var rscore=0;
-    var sscore=0;
-    var ascore=0;
-    var acal=0;
-    var tcal=0;
-    var authkey = "";
+    var dataholder;
 
 
     var baseurl= "https://api.ouraring.com/v2/usercollection/";
@@ -38,7 +31,6 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 	var tomorrow = Time.Gregorian.info(Time.now().add( new Time.Duration(3600*24)), Time.FORMAT_SHORT);
 	var start_date=""+today.year+"-"+today.month.format("%02d")+"-"+today.day.format("%02d");
 	var end_date=""+tomorrow.year+"-"+tomorrow.month.format("%02d")+"-"+tomorrow.day.format("%02d");
-	System.println(start_date +" - "+end_date);
 	var sleepurl= baseurl+"daily_sleep?start_date="+start_date+"&end_date="+end_date;
 	var acturl= baseurl+"daily_activity?start_date="+start_date+"&end_date="+end_date;
 	var readyurl= baseurl+"daily_readiness?start_date="+start_date+"&end_date="+end_date;
@@ -46,10 +38,9 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 
 	var options = {                                             // set the options
            :headers => {                                           // set headers
-		"Authorization" => "Bearer  "+authkey
+		"Authorization" => "Bearer  "+dataholder.authkey
 		},
        };
-	System.println(authkey);
 
         if(System.getDeviceSettings().phoneConnected){
         notify.invoke("Loading ");
@@ -62,30 +53,26 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 	}
     }
 
-    function initialize(handler) {
+    function initialize(handler,data) {
         Ui.BehaviorDelegate.initialize();
         notify = handler;
+	dataholder=data;
 	loadData();
 	onMenu();
     }
 
     function loadData(){
+	dataholder.load();
 		
-    rscore=Application.getApp().getProperty("ReadinessScore");
-    sscore=Application.getApp().getProperty("SleepScore");
-    ascore=Application.getApp().getProperty("ActivityScore");
-    acal=Application.getApp().getProperty("ActiveCals");
-    tcal=Application.getApp().getProperty("TargetCals");
-    authkey = Application.getApp().getProperty("AuthKey");
     }
 
     // Receive the data from the web request
     function updatemsg(){
       notify.invoke(
-         "Readiness : "+rscore+
-         "\nSleep : "+sscore+
-         "\nActivity : "+ascore+
-         "\n\nCal : "+acal+"/"+tcal);
+         "Readiness : "+dataholder.rscore+
+         "\nSleep : "+dataholder.sscore+
+         "\nActivity : "+dataholder.ascore+
+         "\n\nCal : "+dataholder.acal+"/"+dataholder.tcal);
     }
     function onReceiveSleep(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
         if (responseCode == 200) {
@@ -95,9 +82,9 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
                   notify.invoke("No data for today");
 		}else{
 			data=data[0];
-			sscore=data.get("score");
+			var sscore=data.get("score");
+			dataholder.setSleep(sscore);
 			updatemsg();
-		    Application.getApp().setProperty("SleepScore",sscore);
 		}
 
 	    } else {
@@ -116,10 +103,10 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
                   notify.invoke("No data for today");
 		}else{
 			data=data[0];
-			rscore=data.get("score");
+			var rscore=data.get("score");
+			dataholder.setReadiness(rscore);
 			updatemsg();
 
-		    Application.getApp().setProperty("ReadinessScore",rscore);
 		}
 
 	    } else {
@@ -138,13 +125,11 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
                   notify.invoke("No data for today");
 		}else{
 		data=data[0];
-		ascore=data.get("score");
-		acal=data.get("active_calories");
-		tcal=data.get("target_calories");
+		var ascore=data.get("score");
+		var acal=data.get("active_calories");
+		var tcal=data.get("target_calories");
+		dataholder.setActivity(ascore,acal,tcal);
 		updatemsg();
-		    Application.getApp().setProperty("ActivityScore",ascore);
-		    Application.getApp().setProperty("ActiveCals",acal);
-		    Application.getApp().setProperty("TargetCals",tcal);
 		}
 
 	    } else {
