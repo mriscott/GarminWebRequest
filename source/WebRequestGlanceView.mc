@@ -31,7 +31,9 @@ class WebRequestGlanceView extends Ui.GlanceView {
         dc.drawText(5, dc.getHeight()/4, Graphics.FONT_SMALL, "Oura", Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
 	dc.drawLine(0,dc.getHeight()/2,dc.getWidth(),dc.getHeight()/2);
 	dc.setColor(Graphics.COLOR_BLUE, Graphics.COLOR_WHITE);
-	dc.fillRectangle(0,dc.getHeight()/2-5,(dc.getWidth()*data.acal)/data.tcal,10);
+	if(data.tcal!=null && data.tcal!=0){
+	dc.fillRectangle(0,dc.getHeight()/2-3,(dc.getWidth()*data.acal)/data.tcal,6);
+       }
     }
 
     // Called when this View is removed from the screen. Save the
@@ -40,8 +42,13 @@ class WebRequestGlanceView extends Ui.GlanceView {
     }
 
     function getMessage(){
+	if(data.rscore!=null && data.sscore!=null && data.ascore!=null
+	&& data.rscore!=0 && data.sscore!=0 && data.ascore!=0){
 
-      return "R:"+data.rscore+" S:"+data.sscore+" A:"+data.ascore;
+	return "R:"+data.rscore+" S:"+data.sscore+" A:"+data.ascore;
+
+	}
+	return "R:- S:- A:-";
     }
 
 

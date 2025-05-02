@@ -11,6 +11,7 @@ using Toybox.Time as Time;
 class WebRequestDelegate extends Ui.BehaviorDelegate {
     var notify;
     var dataholder;
+    var error="";
 
 
     var baseurl= "https://api.ouraring.com/v2/usercollection/";
@@ -44,6 +45,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 
         if(System.getDeviceSettings().phoneConnected){
         notify.invoke("Loading ");
+	error="";
         Comm.makeWebRequest( sleepurl,params , options , method(:onReceiveSleep));
         Comm.makeWebRequest( acturl,params , options , method(:onReceiveActivity));
         Comm.makeWebRequest( readyurl,params , options , method(:onReceiveReadiness));
@@ -68,18 +70,22 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 
     // Receive the data from the web request
     function updatemsg(){
+      if(error.length()>0){
+	notify.invoke(error);
+      }else{
       notify.invoke(
          "Readiness : "+dataholder.rscore+
          "\nSleep : "+dataholder.sscore+
          "\nActivity : "+dataholder.ascore+
          "\n\nCal : "+dataholder.acal+"/"+dataholder.tcal);
+	}
     }
     function onReceiveSleep(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
         if (responseCode == 200) {
 	    if (data instanceof Dictionary){
 		data=data.get("data");
 		if(data==null || (data as Toybox.Lang.Array).size()==0){
-                  notify.invoke("No data for today");
+                  error=("No sleep data");
 		}else{
 			data=data[0];
 			var sscore=data.get("score");
@@ -88,11 +94,11 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		}
 
 	    } else {
-		notify.invoke("Bad sleep response:\n"+responseCode);
+		error="Bad sleep response:"+responseCode;
 	    }
 
         } else {
-            notify.invoke("Failed to load sleep\nError: " + responseCode.toString());
+            error=("Failed to load sleep\nError: " + responseCode.toString());
         }
     }
     function onReceiveReadiness(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
@@ -100,7 +106,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 	    if (data instanceof Dictionary){
 		data=data.get("data");
 		if(data==null || (data as Toybox.Lang.Array).size()==0){
-                  notify.invoke("No data for today");
+                  error=("No readiness for today");
 		}else{
 			data=data[0];
 			var rscore=data.get("score");
@@ -110,11 +116,11 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		}
 
 	    } else {
-		notify.invoke("Bad readiness response:\n"+responseCode);
+		error=("Bad readiness response:"+responseCode);
 	    }
 
         } else {
-            notify.invoke("Failed to load sleep\nError: " + responseCode.toString());
+            error=("Failed to load sleep\nError: " + responseCode.toString());
         }
     }
     function onReceiveActivity(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
@@ -122,7 +128,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 	    if (data instanceof Dictionary){
 		data=data.get("data");
 		if(data==null || (data as Toybox.Lang.Array).size()==0){
-                  notify.invoke("No data for today");
+                  error=("No data for today");
 		}else{
 		data=data[0];
 		var ascore=data.get("score");
@@ -133,11 +139,11 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
 		}
 
 	    } else {
-		notify.invoke("Bad activity response:\n"+responseCode);
+		error=("Bad activity response:\n"+responseCode);
 	    }
 
         } else {
-            notify.invoke("Failed to load activity\nError: " + responseCode.toString());
+            error=("Failed to load activity\nError: " + responseCode.toString());
         }
     }
 
