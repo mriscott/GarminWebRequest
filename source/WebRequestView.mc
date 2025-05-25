@@ -11,9 +11,13 @@ class WebRequestView extends Ui.View {
     hidden var mMessage = "Press menu button";
     hidden var mModel;
 
-    function initialize() {
+    var dataholder;
+
+    function initialize(data) {
         Ui.View.initialize();
+	dataholder=data;
     }
+
 
     // Load your resources here
     function onLayout(dc) {
@@ -21,6 +25,7 @@ class WebRequestView extends Ui.View {
 
     // Restore the state of the app and prepare the view to be shown
     function onShow() {
+	dataholder.setUpdateView(true);
     }
 
     // Update the view
@@ -33,20 +38,12 @@ class WebRequestView extends Ui.View {
     // Called when this View is removed from the screen. Save the
     // state of your app here.
     function onHide() {
+	dataholder.setUpdateView(false);
     }
 
     function onReceive(args) {
         if (args instanceof Lang.String) {
             mMessage = args;
-        }
-        else if (args instanceof Dictionary) {
-	    var content= args.get("content");
-	    if (content!=null) {
-	       content=content.toString();	
-	    }
-	    else {
-	    	 mMessage="Invalid json";
-		 }
         }
         Ui.requestUpdate();
     }
