@@ -6,15 +6,21 @@
 
 using Toybox.Application as App;
 
+(:background)
 class WebRequestApp extends App.AppBase {
     hidden var mView;
     hidden var mDelegate;
     hidden var mUrl;
     hidden var data;
-
     function initialize() {
         App.AppBase.initialize();
 	data=new DataHolder();
+	
+	Background.registerForTemporalEvent(new Time.Duration (5*60));
+    }
+
+    function getServiceDelegate(){
+	return [data];
     }
 
     // onStart() is called on application start up
@@ -33,9 +39,12 @@ class WebRequestApp extends App.AppBase {
         return [mView, mDelegate];
     }
 
+    function onBackgroundData(bgdata){
+	data.saveData(bgdata);
+    }
+
     function getGlanceView(){
 	var glance=new WebRequestGlanceView(data);
-	data.setGlanceView(glance);
 	return [glance];
     }
 

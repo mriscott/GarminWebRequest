@@ -7,7 +7,9 @@
 using Toybox.Communications as Comm;
 using Toybox.System;
 using Toybox.Time as Time;
+using Toybox.Background;
 
+(:background)	
 class DataHolder extends System.ServiceDelegate {
   var rscore=0;
   var sscore=0;
@@ -16,24 +18,19 @@ class DataHolder extends System.ServiceDelegate {
   var tcal=0;
   var authkey;
   var expire=0;
-  var lastreq=0;
   var delegate=0;
   var updateView=false;
-  var updateGlance=false;
 	var error="";
     var baseurl= "https://api.ouraring.com/v2/usercollection/";
 	var view;
-	var glance;;
 		
-    function setUpdateGlanceView(x){
-	updateGlance=x;
-    }
     function setUpdateView(x){
 	updateView=x;
     }
 
     function updatemsg(){
 	var msg="";
+	System.println("Update:"+error);
 	if(updateView){
 	    if(error.length()>0){
 		msg=error;
@@ -46,18 +43,12 @@ class DataHolder extends System.ServiceDelegate {
 	    }
 	    view.onReceive(msg);
 	}
-	if(updateGlance){
-		glance.update();
-	}
 
 	
 		
 	
     }
     
-    function setGlanceView(v){
-	glance=v;
-    }
     function setView(v){
 	view=v;
     }
@@ -65,7 +56,6 @@ class DataHolder extends System.ServiceDelegate {
     // Load your resources here
     function load() {
     expire = Application.getApp().getProperty("expire");
-    lastreq = Application.getApp().getProperty("lastreq");
     if(expire==null ||  expire>Time.now().value()){
     rscore=Application.getApp().getProperty("ReadinessScore");
     sscore=Application.getApp().getProperty("SleepScore");
@@ -87,44 +77,59 @@ class DataHolder extends System.ServiceDelegate {
 	var oneDay = new Time.Duration(Time.Gregorian.SECONDS_PER_DAY);
 	var tomorrow = today.add(oneDay);
 	expire=tomorrow.value();
-	Application.getApp().setProperty("expire",expire);
+	var values = {
+ 	   "rscore" => rscore,
+    	   "sscore" => sscore,
+    	   "ascore" => ascore,
+    	   "acal" => acal,
+    	   "tcal" => tcal,
+    	   "expire" => expire
+	   };
+	   System.println("Returning values:"+values);
+	Background.exit(values);
     }
 
-    function setLastReq(){
-	load();
-	lastreq=Time.today().value();
-	Application.getApp().setProperty("lastreq",lastreq);
-    }
+
     
 
     function setSleep(score){
 	sscore=score;
-	Application.getApp().setProperty("SleepScore",sscore);
 	setExpiry();
     }
     function setReadiness(score){
 	rscore=score;
 	setExpiry();
-    Application.getApp().setProperty("ReadinessScore",rscore);
   }
 
     function setActivity(score,acals,tcals){
 	ascore=score;
 	acal=acals;
 	tcal=tcals;
-      Application.getApp().setProperty("ActivityScore",ascore);
-      Application.getApp().setProperty("ActiveCals",acal);
-      Application.getApp().setProperty("TargetCals",tcal);
 	setExpiry();
     }
 
-		function requestData(skip){
-		    var now=Time.now().value();
-		    if(lastreq!=null && lastreq!=0 && now<(lastreq+600) && skip){
-			return;
-		    }
-		    setLastReq();
+    function saveData(dict){
+      if(dict.get("ascore")!=0){
+	Application.getApp().setProperty("ActivityScore",dict.get("ascore"));
+	Application.getApp().setProperty("ActiveCals",dict.get("acal"));
+	Application.getApp().setProperty("TargetCals",dict.get("tcal"));
+      }
+      if(dict.get("rscore")!=0){
+	Application.getApp().setProperty("ReadinessScore",dict.get("rscore"));
+      }
+      if(dict.get("sscore")!=0){
+	Application.getApp().setProperty("SleepScore",dict.get("sscore"));
+      }
+      if(dict.get("expire")!=0){
+	Application.getApp().setProperty("expire",dict.get("expire"));
+      }
+
+    } 
+
+		function requestData(all){
+				load();
 				var today = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
+				System.println("Requesting:"+today.hour+":"+today.min+":"+today.sec);;
 				var tomorrow = Time.Gregorian.info(Time.now().add( new Time.Duration(3600*24)), Time.FORMAT_SHORT);
 				var start_date=""+today.year+"-"+today.month.format("%02d")+"-"+today.day.format("%02d");
 				var end_date=""+tomorrow.year+"-"+tomorrow.month.format("%02d")+"-"+tomorrow.day.format("%02d");
@@ -141,11 +146,14 @@ class DataHolder extends System.ServiceDelegate {
 
 				if(System.getDeviceSettings().phoneConnected){
 						error="";
-						Comm.makeWebRequest( sleepurl,params , options , method(:onReceiveSleep));
+						if(all){
+						  Comm.makeWebRequest( sleepurl,params , options , method(:onReceiveSleep));
+						  Comm.makeWebRequest( readyurl,params , options , method(:onReceiveReadiness));
+						}
 						Comm.makeWebRequest( acturl,params , options , method(:onReceiveActivity));
-						Comm.makeWebRequest( readyurl,params , options , method(:onReceiveReadiness));
 						
 				} 
+
 
 		}
 
@@ -153,6 +161,7 @@ class DataHolder extends System.ServiceDelegate {
 
 
 		function onReceiveSleep(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
+	System.println("Got sleep "+responseCode);
         if (responseCode == 200) {
 						if (data instanceof Dictionary){
 								data=data.get("data");
@@ -162,6 +171,7 @@ class DataHolder extends System.ServiceDelegate {
 										data=data[0];
 										var sscore=data.get("score");
 										setSleep(sscore);
+System.println("Sleep:"+sscore);
 										updatemsg();
 								}
 
@@ -174,6 +184,7 @@ class DataHolder extends System.ServiceDelegate {
         }
     }
     function onReceiveReadiness(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
+	System.println("Got readiness "+responseCode);
         if (responseCode == 200) {
 						if (data instanceof Dictionary){
 								data=data.get("data");
@@ -182,6 +193,7 @@ class DataHolder extends System.ServiceDelegate {
 								}else{
 										data=data[0];
 										var rscore=data.get("score");
+System.println("Readiness:"+rscore);
 										setReadiness(rscore);
 										updatemsg();
 										
@@ -196,6 +208,7 @@ class DataHolder extends System.ServiceDelegate {
         }
     }
     function onReceiveActivity(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
+	System.println("Got activity "+responseCode);
         if (responseCode == 200) {
 						if (data instanceof Dictionary){
 								data=data.get("data");
@@ -207,6 +220,7 @@ class DataHolder extends System.ServiceDelegate {
 										var acal=data.get("active_calories");
 										var tcal=data.get("target_calories");
 										setActivity(ascore,acal,tcal);
+System.println("Activity:"+ascore);
 										updatemsg();
 								}
 
@@ -218,6 +232,11 @@ class DataHolder extends System.ServiceDelegate {
             error=("Failed to load activity\nError: " + responseCode.toString());
         }
     }
+
+	function onTemporalEvent(){
+		System.println("Temporal event!");
+		requestData(false);
+	}
 }
 
 

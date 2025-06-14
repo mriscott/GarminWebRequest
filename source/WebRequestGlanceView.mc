@@ -21,8 +21,7 @@ class WebRequestGlanceView extends Ui.GlanceView {
     }
 
     function onShow() {
-	data.requestData(true);
-	data.setUpdateGlanceView(true);
+    	data.load();
     }
 
     // Update the view
@@ -38,11 +37,6 @@ class WebRequestGlanceView extends Ui.GlanceView {
        }
     }
 
-    // Called when this View is removed from the screen. Save the
-    // state of your app here.
-    function onHide() {
-	data.setUpdateGlanceView(false);
-    }
 
     function getMessage(){
 	if(data.rscore!=null && data.sscore!=null && data.ascore!=null

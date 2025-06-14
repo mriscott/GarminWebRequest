@@ -29,7 +29,7 @@ class WebRequestDelegate extends Ui.BehaviorDelegate {
     function loadMenu() {
 	if(System.getDeviceSettings().phoneConnected){
 	    notify.invoke("Loading ");
-	    dataholder.requestData(false);
+	    dataholder.requestData(true);
 	}  else {
 	    notify.invoke("Phone\ndisconnected");
 	}
