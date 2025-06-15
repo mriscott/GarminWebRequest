@@ -16,7 +16,6 @@ class DataHolder extends System.ServiceDelegate {
   var tcal=0;
   var authkey;
   var expire=0;
-  var lastreq=0;
   var delegate=0;
   var updateView=false;
   var updateGlance=false;
@@ -65,7 +64,6 @@ class DataHolder extends System.ServiceDelegate {
     // Load your resources here
     function load() {
     expire = Application.getApp().getProperty("expire");
-    lastreq = Application.getApp().getProperty("lastreq");
     if(expire==null ||  expire>Time.now().value()){
     rscore=Application.getApp().getProperty("ReadinessScore");
     sscore=Application.getApp().getProperty("SleepScore");
@@ -90,11 +88,6 @@ class DataHolder extends System.ServiceDelegate {
 	Application.getApp().setProperty("expire",expire);
     }
 
-    function setLastReq(){
-	load();
-	lastreq=Time.today().value();
-	Application.getApp().setProperty("lastreq",lastreq);
-    }
     
 
     function setSleep(score){
@@ -118,12 +111,13 @@ class DataHolder extends System.ServiceDelegate {
 	setExpiry();
     }
 
-		function requestData(skip){
-		    var now=Time.now().value();
-		    if(lastreq!=null && lastreq!=0 && now<(lastreq+600) && skip){
+    function requestData(skip){
+		if(skip){	
+		    load();
+		    if(sscore!=null && sscore!=0 && rscore!=null && rscore!=0){
 			return;
 		    }
-		    setLastReq();
+		}
 				var today = Time.Gregorian.info(Time.now(), Time.FORMAT_SHORT);
 				var tomorrow = Time.Gregorian.info(Time.now().add( new Time.Duration(3600*24)), Time.FORMAT_SHORT);
 				var start_date=""+today.year+"-"+today.month.format("%02d")+"-"+today.day.format("%02d");
@@ -142,7 +136,10 @@ class DataHolder extends System.ServiceDelegate {
 				if(System.getDeviceSettings().phoneConnected){
 						error="";
 						Comm.makeWebRequest( sleepurl,params , options , method(:onReceiveSleep));
+
+						if(!skip){
 						Comm.makeWebRequest( acturl,params , options , method(:onReceiveActivity));
+						}
 						Comm.makeWebRequest( readyurl,params , options , method(:onReceiveReadiness));
 						
 				} 
@@ -174,6 +171,7 @@ class DataHolder extends System.ServiceDelegate {
         }
     }
     function onReceiveReadiness(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
+
         if (responseCode == 200) {
 						if (data instanceof Dictionary){
 								data=data.get("data");
@@ -196,6 +194,7 @@ class DataHolder extends System.ServiceDelegate {
         }
     }
     function onReceiveActivity(responseCode as Toybox.Lang.Number, data as Null or Toybox.Lang.String or Toybox.PersistedContent.Iterator or Toybox.Lang.Dictionary) as Void {
+
         if (responseCode == 200) {
 						if (data instanceof Dictionary){
 								data=data.get("data");

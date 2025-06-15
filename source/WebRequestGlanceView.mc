@@ -25,6 +25,10 @@ class WebRequestGlanceView extends Ui.GlanceView {
 	data.setUpdateGlanceView(true);
     }
 
+    function update(){
+      Ui.requestUpdate();
+    }
+
     // Update the view
     function onUpdate(dc) {
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_BLACK);
@@ -45,13 +49,15 @@ class WebRequestGlanceView extends Ui.GlanceView {
     }
 
     function getMessage(){
-	if(data.rscore!=null && data.sscore!=null && data.ascore!=null
-	&& data.rscore!=0 && data.sscore!=0 && data.ascore!=0){
+	return "R:"+formatScore(data.rscore)+" S:"+formatScore(data.sscore)+" A:"+formatScore(data.ascore);
+    }
 
-	return "R:"+data.rscore+" S:"+data.sscore+" A:"+data.ascore;
-
+    function formatScore(x){
+	if(x!=null && x!=0) {
+	    return x;
 	}
-	return "R:- S:- A:-";
+	
+	return "-";
     }
 
 
